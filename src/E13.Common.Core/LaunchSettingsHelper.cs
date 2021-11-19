@@ -22,7 +22,7 @@ namespace E13.Common.Core
         {
             if (_evLoaded) return;
 
-            using var file = File.OpenText("Properties\\launchSettings.json");
+            using var file = File.OpenText(Path.Combine("Properties", "launchSettings.json"));
             using var reader = new JsonTextReader(file);
 
             var jObject = JObject.Load(reader);
@@ -36,7 +36,13 @@ namespace E13.Common.Core
                 .SelectMany(prop => prop.Value.Children<JProperty>())
                 .ToList();
 
-            variables.ForEach(v => Environment.SetEnvironmentVariable(v.Name, v.Value.ToString()));
+            variables.ForEach(v =>
+            {
+                if (Environment.GetEnvironmentVariable(v.Name) == null)
+                {
+                    Environment.SetEnvironmentVariable(v.Name, v.Value.ToString());
+                }
+            });
             _evLoaded = true;
         }
     }
